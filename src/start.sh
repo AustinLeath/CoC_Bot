@@ -1,5 +1,3 @@
-#!/bin/bash
-
 read -p "Enter instance ID: " INSTANCE_ID
 
 BASE_NAME="CoC_Bot"

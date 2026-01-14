@@ -53,7 +53,7 @@
     * __NOTE__: It is recommended to host the web app on [pythonanywhere](https://www.pythonanywhere.com) using the provided [wsgi.py](app/wsgi.py) template and [this tutorial](https://medium.com/@cssjhnnamae/how-to-deploy-a-python-app-on-pythonanywhere-cf399f4bbc01). Free accounts can host a single web app for an extendable period of 3 months.
     * __NOTE__: If you enable password protection on pythonanywhere, you'll need to enter the credentials into ```WEB_APP_AUTH_USERNAME``` and ```WEB_APP_AUTH_PASSWORD``` in [configs.py](src/configs.py)
     * __NOTE__: If hosting from a personal device, open port 1234 (or whatever port ```WEB_APP_PORT``` is set to in [configs.py](src/configs.py)) and configure port forwarding as necessary
-    * Each bot instance can be accessed at ```WEB_APP_ADDRESS/<instance_name>``` (the default instance name is ```main```)
+    * Each bot instance can be accessed at ```WEB_APP_ADDRESS/<instance_name>``` (instance names are defined in ```INSTANCE_IDS``` in ```src/configs.py```)
 4. Setup iPhone shortcut:
     * __NOTE__: An [older version](<shortcut/CoC Bot Auto Pause Old.shortcut>) of the shortcut is provided that does not require Scriptable, but is incapable of handling request errors
     * Download [Scriptable](https://apps.apple.com/us/app/scriptable/id1405459188) and create a new script named "CoC Bot Script" with the contents of [CoC_Bot_Script.js](<shortcut/Scriptable.js>)
@@ -66,4 +66,9 @@
     * __NOTE__: ```src/start.sh``` uses tmux to start the bot in the background. It is recommended to just run the bot in the background by starting a tmux session, running ```src/main.py```, and detaching manually.
     * __NOTE__: The BlueStacks window can be minimized without disrupting the bot as all interactions are handled through Android Debug Bridge
     * __NOTE__: On MacOS, if ```DISABLE_DEEVICE_SLEEP = True``` in [configs.py](src/configs.py), the user password is required to toggle the ```disablesleep``` flag in power management settings.
+    * __NOTE__: On Windows, use the provided scripts in ```src/```:
+        * ```start.bat``` - Interactive batch file to start a specific instance
+        * ```start_all.bat``` - Starts all configured instances
+        * ```manage_instances.ps1``` - PowerShell script to list, start, stop, and manage instances
+        * Example: ```.\src\manage_instances.ps1 -Action start``` to start all instances
     * To run bots for multiple accounts just create additional BlueStacks instances with BlueStacks' multi-instance manager, set up the instance as usual, and append new instance names and their Android Debug Bridge addresses to ```INSTANCE_IDS``` and ```ADB_ADDRESSES``` in [configs.py](src/configs.py)

@@ -563,7 +563,10 @@ class Exit_Handler:
 
     @classmethod
     def setup_signal_handlers(cls):
-        for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
+        signals = [signal.SIGINT, signal.SIGTERM]
+        if hasattr(signal, 'SIGHUP'):
+            signals.append(signal.SIGHUP)
+        for sig in signals:
             signal.signal(sig, cls.handle_sig)
 
 Exit_Handler.setup_signal_handlers()

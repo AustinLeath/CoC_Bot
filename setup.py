@@ -16,6 +16,7 @@ bot_packages = [
     "pure-python-adb",
     "pyminitouch",
     "psutil",
+    "rapidfuzz",
 ]
 
 web_app_packages = [
