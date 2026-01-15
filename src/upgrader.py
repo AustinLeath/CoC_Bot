@@ -555,73 +555,123 @@ class Upgrader:
     # ============================================================
     
     def run_home_base(self):
+        print("Running home base upgrades")
         Input_Handler.zoom(dir="out")
         Input_Handler.swipe_down()
-        
+
         # Building upgrades
+        print("Starting building upgrades")
         upgrades_started = []
         counter = 0
         while counter < MAX_UPGRADES_PER_CHECK:
             counter += 1
+            print(f"Attempting building upgrade {counter}/{MAX_UPGRADES_PER_CHECK}")
             try:
                 initial_builders = get_home_builders(1)
-                if initial_builders == 0: break
+                print(f"Initial builders available: {initial_builders}")
+                if initial_builders == 0:
+                    print("No builders available, stopping building upgrades")
+                    break
                 upgraded = self.home_upgrade()
                 time.sleep(0.5)
                 final_builders = get_home_builders(1)
+                print(f"Final builders available: {final_builders}")
                 if upgraded is not None:
-                    if final_builders < initial_builders: upgrades_started.append(upgraded)
-                    elif final_builders == initial_builders and upgraded != "wall": break
-                else: break
-            except:
+                    print(f"Upgraded: {upgraded}")
+                    if final_builders < initial_builders:
+                        upgrades_started.append(upgraded)
+                        print(f"Upgrade successful: {upgraded}")
+                    elif final_builders == initial_builders and upgraded != "wall":
+                        print("No builder consumed and not a wall, stopping")
+                        break
+                else:
+                    print("No upgrade performed, stopping")
+                    break
+            except Exception as e:
+                print(f"Exception in building upgrade: {e}")
                 pass
-        
+
         # Lab upgrades
+        print("Starting lab upgrades")
         lab_upgrades_started = []
         try:
             if self.home_lab_available(1):
+                print("Home lab is available, attempting lab upgrade")
                 upgraded = self.home_lab_upgrade()
                 time.sleep(0.5)
                 final_lab_avail = self.home_lab_available(1)
-                if upgraded is not None and not final_lab_avail: lab_upgrades_started.append(upgraded)
-        except:
+                if upgraded is not None and not final_lab_avail:
+                    lab_upgrades_started.append(upgraded)
+                    print(f"Lab upgrade successful: {upgraded}")
+                else:
+                    print("Lab upgrade not completed")
+            else:
+                print("Home lab not available")
+        except Exception as e:
+            print(f"Exception in lab upgrade: {e}")
             pass
-        
+
+        print(f"Sending notifications for {len(upgrades_started + lab_upgrades_started)} upgrades")
         for upgrade in upgrades_started + lab_upgrades_started:
             send_notification(f"Started upgrading {upgrade}")
     
     def run_builder_base(self):
+        print("Running builder base upgrades")
         Input_Handler.zoom(dir="out")
         Input_Handler.swipe_down()
-        
+
         # Building upgrades
+        print("Starting builder base building upgrades")
         upgrades_started = []
         counter = 0
         while counter < MAX_UPGRADES_PER_CHECK:
             counter += 1
+            print(f"Attempting builder base building upgrade {counter}/{MAX_UPGRADES_PER_CHECK}")
             try:
                 initial_builders = get_builder_builders(1)
-                if initial_builders == 0: break
+                print(f"Initial builder base builders available: {initial_builders}")
+                if initial_builders == 0:
+                    print("No builder base builders available, stopping building upgrades")
+                    break
                 upgraded = self.builder_upgrade()
                 time.sleep(0.5)
                 final_builders = get_builder_builders(1)
+                print(f"Final builder base builders available: {final_builders}")
                 if upgraded is not None:
-                    if final_builders < initial_builders: upgrades_started.append(upgraded)
-                    elif final_builders == initial_builders and upgraded != "wall": break
-                else: break
-            except:
+                    print(f"Builder base upgraded: {upgraded}")
+                    if final_builders < initial_builders:
+                        upgrades_started.append(upgraded)
+                        print(f"Builder base upgrade successful: {upgraded}")
+                    elif final_builders == initial_builders and upgraded != "wall":
+                        print("No builder consumed and not a wall, stopping")
+                        break
+                else:
+                    print("No builder base upgrade performed, stopping")
+                    break
+            except Exception as e:
+                print(f"Exception in builder base building upgrade: {e}")
                 pass
-        
+
         # Lab upgrades
+        print("Starting builder base lab upgrades")
         lab_upgrades_started = []
         try:
             if self.builder_lab_available(1):
+                print("Builder base lab is available, attempting lab upgrade")
                 upgraded = self.builder_lab_upgrade()
                 time.sleep(0.5)
                 final_lab_avail = self.builder_lab_available(1)
-                if upgraded is not None and not final_lab_avail: lab_upgrades_started.append(upgraded)
-        except:
+                if upgraded is not None and not final_lab_avail:
+                    lab_upgrades_started.append(upgraded)
+                    print(f"Builder base lab upgrade successful: {upgraded}")
+                else:
+                    print("Builder base lab upgrade not completed")
+            else:
+                print("Builder base lab not available")
+        except Exception as e:
+            print(f"Exception in builder base lab upgrade: {e}")
             pass
-        
+
+        print(f"Sending notifications for {len(upgrades_started + lab_upgrades_started)} builder base upgrades")
         for upgrade in upgrades_started + lab_upgrades_started:
             send_notification(f"Started upgrading {upgrade}")

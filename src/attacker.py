@@ -303,7 +303,7 @@ class Attacker:
     # ============================================================
 
     @require_exit()
-    def run_home_base(self, timeout=60, restart=False):
+    def run_home_base(self, timeout=900, restart=False): #900 seconds is how long the loop will run before sleeping for 180 seconds (the check interval)
         print("Running home base attacks")
         Input_Handler.zoom(dir="out")
         Input_Handler.swipe_down()

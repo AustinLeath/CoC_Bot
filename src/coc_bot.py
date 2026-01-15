@@ -96,41 +96,64 @@ class CoC_Bot:
     # ============================================================
     
     def run(self):
+        print("Starting CoC Bot main loop")
         while True:
-            try:                
+            try:
+                print("Main loop iteration started")
                 if not running():
+                    print("Bot is paused or not running, sleeping 1 second")
                     time.sleep(1)
                     continue
-                
+
+                print("Bot is active, attempting to start CoC")
                 if start_coc():
+                    print("CoC started successfully, updating status to active")
                     self.update_status("now")
-                    
+
                     # Check home base
                     if UPGRADE_HOME_BASE:
+                        print("Home base upgrades enabled, navigating to home base")
                         to_home_base()
+                        print("Starting home base upgrades")
                         self.upgrader.run_home_base()
                     if ATTACK_HOME_BASE:
-                        if not UPGRADE_HOME_BASE: to_home_base()
+                        if not UPGRADE_HOME_BASE:
+                            print("Home base attacks enabled, navigating to home base")
+                            to_home_base()
+                        print("Starting home base attacks")
                         self.attacker.run_home_base(restart=UPGRADE_BUILDER_BASE or ATTACK_BUILDER_BASE)
-                    
+
                     # Check builder base
                     if UPGRADE_BUILDER_BASE:
+                        print("Builder base upgrades enabled, navigating to builder base")
                         to_builder_base()
+                        print("Collecting builder base attack elixir")
                         self.upgrader.collect_builder_attack_elixir()
+                        print("Starting builder base upgrades")
                         self.upgrader.run_builder_base()
                     if ATTACK_BUILDER_BASE:
-                        if not UPGRADE_BUILDER_BASE: to_builder_base()
+                        if not UPGRADE_BUILDER_BASE:
+                            print("Builder base attacks enabled, navigating to builder base")
+                            to_builder_base()
+                        print("Starting builder base attacks")
                         self.attacker.run_builder_base(restart=True)
-                    
+
+                    print("All tasks completed, returning to home base")
                     to_home_base()
+                    print("Sleeping 2 seconds before stopping CoC")
                     time.sleep(2)
-                    
-                    stop_coc()
+
+                    #print("Stopping CoC")
+                    #stop_coc()
+                    print("CoC stopped, updating status with completion time")
                     self.update_status(time.time())
-                
+
+                print(f"Sleeping for {CHECK_INTERVAL} seconds before next cycle")
                 time.sleep(CHECK_INTERVAL)
-            
+
             except Exception as e:
-                print(e)
+                print(f"Exception in main loop: {e}")
+                print("Stopping CoC due to error")
                 stop_coc()
+                print("Updating status to error")
                 self.update_status("error")
