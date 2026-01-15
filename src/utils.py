@@ -238,6 +238,19 @@ def send_notification(text):
             )
         except: pass
 
+    if DISCORD_WEBHOOK_URL != "":
+        try:
+            discord_text = f"[{INSTANCE_ID}]\n{text}"
+            print(f"Sending Discord notification: {discord_text}")
+            response = requests.post(
+                DISCORD_WEBHOOK_URL,
+                json={"content": discord_text},
+                timeout=(10, 20)
+            )
+            print(f"Discord response status: {response.status_code}")
+        except Exception as e:
+            print(f"Discord notification failed: {e}")
+
 def to_home_base():
     try:
         get_home_builders(1)

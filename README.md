@@ -17,7 +17,7 @@
 * View bot status on web app 🚦
 * Resume / pause bot execution from web app ⏯️
 * iPhone shortcut to auto resume / pause bot when CoC is opened by user ⏯️
-* Telegram and web app notifications 🔔
+* Telegram, Discord, and web app notifications 🔔
 
 ## Dependencies
 1. Install python packages with [setup.py](setup.py)
@@ -49,6 +49,7 @@
 1. Install and configure dependencies listed above
 2. Enter user configurations in [configs.py](src/configs.py)
     * __NOTE__: To configure Telegram notifications, first set up a [Telegram bot](https://marketplace.creatio.com/sites/marketplace/files/app-guide/Instructions._Telegram_bot_1.pdf?utm_source=chatgpt.com) and send ```/start```. Enter the API token generated during the setup process for ```TELEGRAM_BOT_TOKEN```.
+    * __NOTE__: To configure Discord notifications, create a webhook in your Discord server settings (Server Settings > Integrations > Webhooks) and copy the webhook URL into ```DISCORD_WEBHOOK_URL```.
 3. Start web app: ```python app/app.py```
     * __NOTE__: It is recommended to host the web app on [pythonanywhere](https://www.pythonanywhere.com) using the provided [wsgi.py](app/wsgi.py) template and [this tutorial](https://medium.com/@cssjhnnamae/how-to-deploy-a-python-app-on-pythonanywhere-cf399f4bbc01). Free accounts can host a single web app for an extendable period of 3 months.
     * __NOTE__: If you enable password protection on pythonanywhere, you'll need to enter the credentials into ```WEB_APP_AUTH_USERNAME``` and ```WEB_APP_AUTH_PASSWORD``` in [configs.py](src/configs.py)

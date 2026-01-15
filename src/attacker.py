@@ -16,9 +16,11 @@ class Attacker:
     # ============================================================
 
     def load_assets(self):
+        print("Loading attacker assets")
         assets = {}
         for file in os.listdir(ATTACKER_ASSETS_DIR):
             assets[file.replace('.png', '')] = cv2.imread(os.path.join(ATTACKER_ASSETS_DIR, file), cv2.IMREAD_COLOR)
+        print(f"Loaded {len(assets)} assets")
         return assets
 
     # ============================================================
@@ -26,86 +28,125 @@ class Attacker:
     # ============================================================
     
     def click_okay(self):
+        print("Attempting to locate and click okay button")
         x, y = Frame_Handler.locate(self.assets["okay"], thresh=0.9)
         if x is not None and y is not None:
             Input_Handler.click(x, y)
+            print("Clicked okay button")
             return True
+        print("Okay button not found")
         return False
     
     def click_surrender(self):
+        print("Attempting to locate and click surrender button")
         x, y = Frame_Handler.locate(self.assets["surrender"], thresh=0.9)
         if x is not None and y is not None:
             Input_Handler.click(x, y)
+            print("Clicked surrender button")
             return True
+        print("Surrender button not found")
         return False
     
     def click_end_battle(self):
+        print("Attempting to locate and click end battle button")
         x, y = Frame_Handler.locate(self.assets["end_battle"], thresh=0.9)
         if x is not None and y is not None:
             Input_Handler.click(x, y)
+            print("Clicked end battle button")
             return True
+        print("End battle button not found")
         return False
     
     def click_return_home(self):
+        print("Attempting to locate and click return home button")
         x, y = Frame_Handler.locate(self.assets["return_home"], thresh=0.9)
         if x is not None and y is not None:
             Input_Handler.click(x, y)
+            print("Clicked return home button")
             return True
+        print("Return home button not found")
         return False
     
     def start_normal_attack(self, timeout=60):
+        print("Starting normal attack")
         # Click attack
+        print("Clicking attack button")
         Input_Handler.click(0.07, 0.9)
-        
+
         # Find a match
+        print("Searching for find a match button")
         for _ in range(20):
             time.sleep(0.5)
             xys = Frame_Handler.locate(self.assets["find_a_match"], thresh=0.9, return_all=True)
             if len(xys) > 0: break
-        if len(xys) == 0: return False
+        if len(xys) == 0:
+            print("Find a match button not found")
+            return False
         xys = sorted(xys, key=lambda xy: xy[0])
         x, y = xys[0]
-        if x > 0.2: return False
+        if x > 0.2:
+            print("Find a match button position invalid")
+            return False
+        print("Found find a match button, clicking")
         Input_Handler.click(x, y)
-        
+
         # Confirm attack
+        print("Searching for confirm attack button")
         for _ in range(20):
             time.sleep(0.5)
             x, y = Frame_Handler.locate(self.assets["confirm_attack"], thresh=0.9)
             if x is not None and y is not None: break
-        if x is None or y is None: return False
+        if x is None or y is None:
+            print("Confirm attack button not found")
+            return False
+        print("Confirm attack button found, clicking")
         Input_Handler.click(x, y)
-        
+
         # Wait until "end battle" button is found
+        print("Waiting for end battle button to appear")
         start_time = time.time()
         while time.time() - start_time < timeout:
             time.sleep(0.5)
             x, y = Frame_Handler.locate(self.assets["end_battle"], thresh=0.9)
-            if x is not None and y is not None: return True
+            if x is not None and y is not None:
+                print("End battle button found, attack started successfully")
+                return True
+        print("Timeout waiting for end battle button")
         return False
     
     def start_builder_attack(self, timeout=60):
+        print("Starting builder attack")
         # Click attack
+        print("Clicking attack button")
         Input_Handler.click(0.07, 0.9)
-        
+
         # Find a match
+        print("Searching for find now button")
         for _ in range(20):
             time.sleep(0.5)
             x, y = Frame_Handler.locate(self.assets["find_now"], thresh=0.9)
             if x is not None and y is not None: break
-        if x is None or y is None: return False
+        if x is None or y is None:
+            print("Find now button not found")
+            return False
+        print("Found find now button, clicking")
         Input_Handler.click(x, y)
-        
+
         # Wait until "battle starts in" test is found
+        print("Waiting for battle starts in text to appear")
         start_time = time.time()
         while time.time() - start_time < timeout:
             time.sleep(0.5)
             section = Frame_Handler.get_frame_section(0, 0, 1, 0.1, grayscale=True, high_contrast=True, thresh=150)
             x, y = Frame_Handler.locate(self.assets["battle_starts_in"], section, thresh=0.9)
-            if x is not None and y is not None: return True
+            if x is not None and y is not None:
+                print("Battle starts in text found, attack started successfully")
+                return True
+        print("Timeout waiting for battle starts in text")
         return False
     
     def detect_troop_positions(self, frame, clip_left=0.0, clip_right=1.0, return_boundaries=False, return_types=False):
+        print("Detecting troop positions")
         # Look for vertical card edges
         if len(frame.shape) == 3: frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
         frame = cv2.equalizeHist(frame)
@@ -171,6 +212,7 @@ class Attacker:
         return output
     
     def deploy_troops(self, card_centers, available_slots):
+        print(f"Deploying {sum(available_slots)} troops")
         for i in range(len(card_centers)):
             if available_slots[i]:
                 # Select troop
@@ -187,6 +229,7 @@ class Attacker:
         Input_Handler.click(0.01, 0.9)
     
     def complete_attack(self, timeout=10, restart=True, exclude_clan_troops=False):
+        print("Completing attack")
         Input_Handler.swipe_up()
         
         total_slots_seen = 0
@@ -225,37 +268,46 @@ class Attacker:
             elif last_card_left is None:
                 break
         
-        # Close and reopen CoC to auto complete battle
-        if restart:
-            start_coc()
-
-            # Wait until back in one of the villages before returning
-            start_time = time.time()
-            while time.time() - start_time < timeout:
-                Input_Handler.click_exit(5, 0.1)
-                try:
-                    get_home_builders(1)
-                    return
-                except Exception as e:
-                    if configs.DEBUG: print("end_attack", e)
-                
-                try:
-                    get_builder_builders(1)
-                    return
-                except Exception as e:
-                    if configs.DEBUG: print("end_attack", e)
+        # Wait for battle to end naturally
+        print("Waiting for battle to end naturally")
+        start_time = time.time()
+        while time.time() - start_time < timeout * 10:  # Wait up to 10x timeout for battle to end
+            time.sleep(1)
+            if self.click_return_home():
+                print("Battle ended, returned home")
+                break
         else:
-            stop_coc()
+            print("Timeout waiting for battle to end, restarting CoC")
+            if restart:
+                start_coc()
+                # Wait until back in one of the villages before returning
+                start_time = time.time()
+                while time.time() - start_time < timeout:
+                    Input_Handler.click_exit(5, 0.1)
+                    try:
+                        get_home_builders(1)
+                        return
+                    except Exception as e:
+                        if configs.DEBUG: print("end_attack", e)
+
+                    try:
+                        get_builder_builders(1)
+                        return
+                    except Exception as e:
+                        if configs.DEBUG: print("end_attack", e)
+            else:
+                stop_coc()
     
     # ============================================================
     # ⚔️ Attack Management
     # ============================================================
 
     @require_exit()
-    def run_home_base(self, timeout=60, restart=True):
+    def run_home_base(self, timeout=60, restart=False):
+        print("Running home base attacks")
         Input_Handler.zoom(dir="out")
         Input_Handler.swipe_down()
-        
+
         try:
             # Make sure in home base
             start_time = time.time()
@@ -265,16 +317,26 @@ class Attacker:
                     break
                 except: pass
             if time.time() - start_time >= timeout: return
-            
-            # Complete an attack
-            if self.start_normal_attack(timeout):
-                self.complete_attack(timeout, restart=restart, exclude_clan_troops=EXCLUDE_CLAN_TROOPS)
-        
+
+            # Attack loop
+            attack_start_time = time.time()
+            while time.time() - attack_start_time < timeout:
+                print(f"Starting attack cycle at {time.time() - attack_start_time:.1f}s")
+                if self.start_normal_attack(timeout):
+                    self.complete_attack(timeout, restart=restart, exclude_clan_troops=EXCLUDE_CLAN_TROOPS)
+                    send_notification("Home base attack completed successfully")
+                    print("Attack completed, waiting 5 seconds before next attack")
+                    time.sleep(5)
+                else:
+                    print("Failed to start attack, breaking loop")
+                    break
+
         except Exception as e:
             if configs.DEBUG: print("attack_home_base", e)
 
     @require_exit()
     def run_builder_base(self, timeout=60, restart=True):
+        print("Running builder base attack")
         Input_Handler.zoom(dir="out")
         Input_Handler.swipe_down()
         
@@ -291,6 +353,7 @@ class Attacker:
             # Complete an attack
             if self.start_builder_attack(timeout):
                 self.complete_attack(timeout, restart=restart, exclude_clan_troops=False)
+                send_notification("Builder base attack completed successfully")
         
         except Exception as e:
             if configs.DEBUG: print("attack_builder_base", e)

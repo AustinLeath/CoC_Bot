@@ -5,6 +5,9 @@
 # OPTIONAL: Telegram notifications (enter empty string to disable)
 TELEGRAM_BOT_TOKEN = "" # (e.g. 123456789:ABCdefGHIjkl-MNO_pqrSTUvwxYZ)
 
+# OPTIONAL: Discord webhook notifications (enter empty string to disable)
+DISCORD_WEBHOOK_URL = "" # (e.g. https://discord.com/api/webhooks/...)
+
 # OPTIONAL: Web app (enter empty string to disable)
 WEB_APP_URL = "" # (e.g. 12.34.567.890:1234)
 WEB_APP_PORT = 1234
