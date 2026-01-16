@@ -14,6 +14,7 @@ import argparse
 import subprocess
 import numpy as np
 import portalocker
+import io
 from datetime import datetime
 from bs4 import BeautifulSoup
 from rapidfuzz import process, distance
@@ -216,7 +217,7 @@ def get_telegram_chat_id():
 
     raise Exception("Failed to get Telegram chat ID")
 
-def send_notification(text):
+def send_notification(text, image_bytes=None):
     if WEB_APP_URL != "":
         try:
             requests.post(
@@ -242,9 +243,14 @@ def send_notification(text):
         try:
             discord_text = f"[{INSTANCE_ID}]\n{text}"
             print(f"Sending Discord notification: {discord_text}")
+            data = {"content": discord_text}
+            files = None
+            if image_bytes:
+                files = {'file': ('screenshot.png', io.BytesIO(image_bytes), 'image/png')}
             response = requests.post(
                 DISCORD_WEBHOOK_URL,
-                json={"content": discord_text},
+                json=data if not files else None,
+                files=files,
                 timeout=(10, 20)
             )
             print(f"Discord response status: {response.status_code}")

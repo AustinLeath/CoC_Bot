@@ -136,7 +136,7 @@ class CoC_Bot:
                             print("Builder base attacks enabled, navigating to builder base")
                             to_builder_base()
                         print("Starting builder base attacks")
-                        self.attacker.run_builder_base(restart=True)
+                        self.attacker.run_builder_base(restart=False)
 
                     print("All tasks completed, returning to home base")
                     to_home_base()

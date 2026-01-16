@@ -61,11 +61,26 @@ class Attacker:
         print("Attempting to locate and click return home button")
         x, y = Frame_Handler.locate(self.assets["return_home"], thresh=0.9)
         if x is not None and y is not None:
+            time.sleep(3) # Wait a bit before returning home to ensure post battle screen is fully populated
+            frame = Frame_Handler.get_frame(grayscale=False)
+            success, buffer = cv2.imencode('.png', frame)
+            if success:
+                image_bytes = buffer.tobytes()
+                send_notification("Returning home", image_bytes=image_bytes)
             Input_Handler.click(x, y)
             print("Clicked return home button")
             return True
         print("Return home button not found")
         return False
+
+    def check_max_resources(self):
+        print("Checking for max resources")
+        gold_x, gold_y = Frame_Handler.locate(self.assets["max_gold"], thresh=0.5)
+        elixir_x, elixir_y = Frame_Handler.locate(self.assets["max_elixr"], thresh=0.5)
+        if gold_x is not None and elixir_x is not None:
+            print("Max resources have been attained")
+        else:
+            print("Max resources not detected")
     
     def start_normal_attack(self, timeout=60):
         print("Starting normal attack")
@@ -77,7 +92,7 @@ class Attacker:
         print("Searching for find a match button")
         for _ in range(20):
             time.sleep(0.5)
-            xys = Frame_Handler.locate(self.assets["find_a_match"], thresh=0.9, return_all=True)
+            xys = Frame_Handler.locate(self.assets["find_a_match"], thresh=0.6, return_all=True)
             if len(xys) > 0: break
         if len(xys) == 0:
             print("Find a match button not found")
@@ -327,6 +342,7 @@ class Attacker:
                     send_notification("Home base attack completed successfully")
                     print("Attack completed, waiting 5 seconds before next attack")
                     time.sleep(5)
+                    self.check_max_resources()
                 else:
                     print("Failed to start attack, breaking loop")
                     break
@@ -335,11 +351,11 @@ class Attacker:
             if configs.DEBUG: print("attack_home_base", e)
 
     @require_exit()
-    def run_builder_base(self, timeout=60, restart=True):
-        print("Running builder base attack")
+    def run_builder_base(self, timeout=900, restart=False):
+        print("Running builder base attacks")
         Input_Handler.zoom(dir="out")
         Input_Handler.swipe_down()
-        
+
         try:
             # Make sure in builder base
             start_time = time.time()
@@ -349,11 +365,19 @@ class Attacker:
                     break
                 except: pass
             if time.time() - start_time >= timeout: return
-            
-            # Complete an attack
-            if self.start_builder_attack(timeout):
-                self.complete_attack(timeout, restart=restart, exclude_clan_troops=False)
-                send_notification("Builder base attack completed successfully")
-        
+
+            # Attack loop
+            attack_start_time = time.time()
+            while time.time() - attack_start_time < timeout:
+                print(f"Starting builder base attack cycle at {time.time() - attack_start_time:.1f}s")
+                if self.start_builder_attack(timeout):
+                    self.complete_attack(timeout, restart=restart, exclude_clan_troops=False)
+                    send_notification("Builder base attack completed successfully")
+                    print("Attack completed, waiting 5 seconds before next attack")
+                    time.sleep(5)
+                else:
+                    print("Failed to start attack, breaking loop")
+                    break
+
         except Exception as e:
             if configs.DEBUG: print("attack_builder_base", e)
